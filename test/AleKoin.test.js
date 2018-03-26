@@ -47,12 +47,6 @@ it("should return inital token wei balance of 1*10^27", async function() {
   assert.strictEqual(ownerBalance, "1000000");
 });
 
-// it("should properly return the [totalSupply] of tokens", async function() {
-//   let totalSupply = await AleKoin.totalSupply.call();
-//   totalSupply = totalSupply.toString();
-//   assert.strictEqual(totalSupply, "1e+27");
-// });
-
 it("should [approve] token for [transferFrom]", async function() {
   let approver = owner;
   let spender = testAccts[3];
@@ -64,64 +58,5 @@ it("should [approve] token for [transferFrom]", async function() {
   let resultAllowance = await AleKoin.methods
     .allowance(approver, spender)
     .call();
-  console.log("resultAllowance", resultAllowance, typeof resultAllowance);
   assert.strictEqual(Number(originalAllowance), 0);
 });
-
-// it("should fail to [transferFrom] more than allowed", async function() {
-//   let from = owner;
-//   let to = web3.eth.accounts[2];
-//   let spenderPrivateKey = privateKeys[2];
-//   let tokenWei = 10000000;
-//   let allowance = await AleKoin.allowance.call(from, to);
-//   let ownerBalance = await AleKoin.balanceOf.call(from);
-//   let spenderBalance = await AleKoin.balanceOf.call(to);
-//   data = web3Contract.transferFrom.getData(from, to, tokenWei);
-//   let errorMessage;
-//   try {
-//     await rawTransaction(to, spenderPrivateKey, AleKoin.address, data, 0);
-//   } catch (error) {
-//     errorMessage = error.message;
-//   }
-//   assert.strictEqual(
-//     errorMessage,
-//     "VM Exception while processing transaction: invalid opcode"
-//   );
-
-// });
-// it("should [transferFrom] approved tokens", async function() {
-//   let from = owner;
-//   let to = web3.eth.accounts[2];
-//   let spenderPrivateKey = privateKeys[2];
-//   let tokenWei = 5000000;
-//   let allowance = await AleKoin.allowance.call(from, to);
-//   let ownerBalance = await AleKoin.balanceOf.call(from);
-//   let spenderBalance = await AleKoin.balanceOf.call(to);
-//   data = web3Contract.transferFrom.getData(from, to, tokenWei);
-//   let result = await rawTransaction(
-//     to,
-//     spenderPrivateKey,
-//     AleKoin.address,
-//     data,
-//     0
-//   );
-//   let allowanceAfter = await AleKoin.allowance.call(from, to);
-//   let ownerBalanceAfter = await AleKoin.balanceOf.call(from);
-//   let spenderBalanceAfter = await AleKoin.balanceOf.call(to);
-//   // Correct account balances
-//   // toString() numbers that are too large for js
-//   assert.strictEqual(
-//     ownerBalance.toString(),
-//     ownerBalanceAfter.add(tokenWei).toString()
-//   );
-//   assert.strictEqual(
-//     spenderBalance.add(tokenWei).toString(),
-//     spenderBalanceAfter.toString()
-//   );
-//   // Proper original allowance
-//   assert.strictEqual(allowance.toNumber(), tokenWei);
-//   // All of the allowance should have been used
-//   assert.strictEqual(allowanceAfter.toNumber(), 0);
-//   // Normal transaction hash, not an error.
-//   assert.strictEqual(0, result.indexOf("0x"));
-// });
