@@ -1,62 +1,51 @@
 const assert = require("assert");
-const ganache = require("ganache-cli");
-const Web3 = require("web3");
-const provider = ganache.provider();
-const web3 = new Web3(provider);
+const AleKoin = artifacts.require("AleKoin");
 
-const { interface, bytecode } = require("../compile");
+let alekoin;
 
-let testAccts;
-let AleKoin;
-let owner;
+contract("AleKoin", accounts => {
+  let owner = accounts[0];
+  let contributor1 = accounts[1];
+  let contributor2 = accounts[2];
 
-beforeEach(async () => {
-  // get list of all accts
-  testAccts = await web3.eth.getAccounts();
-  // use account to deploy token
+  beforeEach(async () => {
+    // get list of all accts
+    alekoin = await AleKoin.new();
+  });
 
-  AleKoin = await new web3.eth.Contract(JSON.parse(interface))
-    .deploy({
-      data: bytecode,
-      arguments: []
-    })
-    .send({ from: testAccts[0], gas: "1000000" });
+  it("sets an owner", async () => {
+    assert.equal(await alekoin.owner.call(), owner);
+  });
 
-  AleKoin.setProvider(provider);
+  it("has name set to AleKoin", async () => {
+    let name = await alekoin.name.call();
+    assert.strictEqual(name, "AleKoin");
+  });
 
-  owner = testAccts[1];
-});
+  it("has initial total balance set by AleKoin", async () => {
+    const alekoinSupply = await alekoin.totalSupply.call();
+    const amount = alekoinSupply["c"][0];
+    assert.equal(amount, 1000000000000);
+  });
 
-it("deploys token", () => {
-  assert.ok(AleKoin.options.address);
-});
+  it("should [approve] token for [transferFrom]", async () => {
+    const initBalance = web3.eth.getBalance(owner);
+    let tokenWei = 50000000;
+    let originalAllowance = await alekoin.allowance(owner, contributor1);
+    await alekoin.approve(contributor1, tokenWei);
+    let resultAllowance = await alekoin.allowance(owner, contributor1);
+    assert.strictEqual(originalAllowance.toNumber(), 0);
+    assert.strictEqual(resultAllowance.toNumber(), 50000000);
+  });
 
-it("has initial total balance set by AleKoin", async () => {
-  const amount = await AleKoin.methods.totalSupply().call();
-  assert.equal(amount, 1000000);
-});
+  it("should have original creator set as admin", async function() {
+    const currentAdmin = await alekoin.admin.call();
+    assert.strictEqual(currentAdmin, owner);
+  });
 
-it("should pass if contract is deployed", async () => {
-  let name = await AleKoin.methods.name().call();
-  assert.strictEqual(name, "AleKoin");
-});
-
-it("should return inital token wei balance of 1*10^27", async function() {
-  let ownerBalance = await AleKoin.methods.balanceOf(owner).call();
-  ownerBalance = ownerBalance.toString();
-  assert.strictEqual(ownerBalance, "1000000");
-});
-
-it("should [approve] token for [transferFrom]", async function() {
-  let approver = owner;
-  let spender = testAccts[3];
-  let originalAllowance = await AleKoin.methods
-    .allowance(approver, spender)
-    .call();
-  let tokenWei = 5000000;
-  await AleKoin.methods.approve(spender, tokenWei).call();
-  let resultAllowance = await AleKoin.methods
-    .allowance(approver, spender)
-    .call();
-  assert.strictEqual(Number(originalAllowance), 0);
+  it("should [updateAdmin] for token", async function() {
+    await alekoin.updateAdmin(contributor1);
+    const updatedAdmin = await alekoin.admin.call();
+    assert.strictEqual(updatedAdmin, contributor1);
+  });
 });
