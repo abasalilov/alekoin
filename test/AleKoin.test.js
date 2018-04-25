@@ -11,7 +11,7 @@ contract("AleKoin", accounts => {
   let contributor4 = accounts[4];
   let contributor5 = accounts[5];
 
-  beforeEach(async () => {
+  before(async () => {
     alekoin = await AleKoin.new();
   });
 
@@ -177,7 +177,7 @@ contract("AleKoin", accounts => {
     await makeTransfer(alekoin, contributor1Amount, contributor1, owner);
     await makeTransfer(alekoin, contributor2Amount, contributor2, owner);
     // console.log("here", await alekoin.bulkTransferAcct.call());
-    await alekoin.deactivate();
+    // await alekoin.deactivate();
     await alekoin.bulkTransfer();
     // const bulkAcctBal = await alekoin.balanceOf(contributor5);
     // console.log("bulkAcctBal", bulkAcctBal);

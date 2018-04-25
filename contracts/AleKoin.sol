@@ -206,9 +206,9 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         _;
     }
 
-    event Deactivate(uint _deactiveTime);
+    event Deactivate();
 
-    event Reactivate(uint _reactiveTime);
+    event Reactivate();
 
     /* Public variables of the token */
     string public name;                   
@@ -274,19 +274,16 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
 
     function bulkTransfer () managerOnly public {
         uint length = countTransactions();
-        uint total = 0;
         address[] memory transactionsList= getTransactionAccts(); 
         
             for(uint i=0;i<length;i++){
                 emit MadeStep(i);
                 address bulkTransferFromAddress = transactionsList[i];
                 uint bulkTransferAmount = getTransactionAmout(transactionsList[i]);
-                total +=bulkTransferAmount;
                 approve(bulkTransferFromAddress, bulkTransferAmount);
-                allowance(owner, bulkTransferFromAddress);
+                // allowance(owner, bulkTransferFromAddress);
+                // transfer(bulkTransferFromAddress, bulkTransferAmount); 
             }
-                emit MadeStep(total);
-                transfer(bulkTransferAcct, total);
 
         // for (uint i = 0; i < length; i++) {
         //     address bulkTransferFromAddress = transactionsList[i];
@@ -303,12 +300,12 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
 
     function deactivate() managerOnly public {
         active = false;
-        emit Deactivate(now);
+        emit Deactivate();
     }
 
     function reactivate() managerOnly public {
         active = true;
-        emit Reactivate(now);
+        emit Reactivate();
     }
 
     /* Approves and then calls the receiving contract */
