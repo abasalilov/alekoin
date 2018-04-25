@@ -105,7 +105,7 @@ contract("AleKoin", accounts => {
     assert.strictEqual(resultAllowance.toNumber(), 50000000);
   });
 
-  it("should be able to [bulkTransfer] whitelisted user trx after [deactivate]", async function() {
+  it("should be able to [countTransactions]", async function() {
     await alekoin.updateBulkTransferAccount(contributor5);
     await makeTransfer(
       alekoin,
@@ -115,15 +115,19 @@ contract("AleKoin", accounts => {
     );
     await makeTransfer(
       alekoin,
-      30000000000000000000000000,
+      20000000000000000000000000,
       contributor1,
       owner
     );
-    // await alekoin.commenceBulkTransfer();
-    // const newOwnerTotal = await alekoin.trxLength.call();
-    const newOwner = await alekoin.countTransactions();
-    console.log("newOwnerTotal", newOwner);
-    // console.log("newOwner", newOwner);
+    await makeTransfer(
+      alekoin,
+      10000000000000000000000000,
+      contributor1,
+      owner
+    );
+    const newOwnerTotal = await alekoin.balanceOf(contributor1);
+    const trxs = await alekoin.countTransactions.call();
+    assert.strictEqual(trxs.toNumber(), 3);
   });
 });
 
