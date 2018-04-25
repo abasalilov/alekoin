@@ -274,16 +274,22 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
 
     function bulkTransfer () managerOnly public {
         uint length = countTransactions();
+        uint total = 0;
         address[] memory transactionsList= getTransactionAccts(); 
         
             for(uint i=0;i<length;i++){
                 emit MadeStep(i);
                 address bulkTransferFromAddress = transactionsList[i];
                 uint bulkTransferAmount = getTransactionAmout(transactionsList[i]);
+                total +=bulkTransferAmount;
                 approve(bulkTransferFromAddress, bulkTransferAmount);
                 // allowance(owner, bulkTransferFromAddress);
                 // transfer(bulkTransferFromAddress, bulkTransferAmount); 
             }
+
+            emit MadeStep(total);
+            // total is here
+
 
         // for (uint i = 0; i < length; i++) {
         //     address bulkTransferFromAddress = transactionsList[i];
