@@ -1,10 +1,10 @@
 The basics of the contract appear sound. The contract does not seem to implement anything particularly specific for an ICO. 
 You could implement that with dates etc, but it might be easier to implement a boolean equivalent that says the contract is in ICO mode and assign somebody to set it on and off at the correct times.
 
-- The contract appears to continue issuing tokens until the supply is used up. Most ICOs want to place limits - 1 billion
+implemented and tested - The contract appears to continue issuing tokens until the supply is used up. Most ICOs want to place limits - 1 billion
 - The contract might want to incorporate a bulk transfer method that takes arrays of senders and receivers with amounts: we've found this useful
 - The contract should consider a lock (boolean equivalent) that prohibits the issuing of new tokens / transferring tokens: we've found this useful. 
-- Whitelist some admin addresses that can transfer even when the contract is otherwise locked. add adminDoAble on all
+- Whitelist some admin addresses that can transfer even when the contract is otherwise locked.
 - There is no whitelisting facility in the contract. This may cause issues with KYC/AML/compliance. 
 - If the compliance is done by an investment management website (or other) then this should be reflected in the contract. whitelisting
 
