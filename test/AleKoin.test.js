@@ -53,12 +53,6 @@ contract("AleKoin", accounts => {
     assert.strictEqual(await getStatus(alekoin), true);
   });
 
-  it("should [approve]", async function() {
-    await alekoin.deactivate();
-    const currentStatus = await getStatus(alekoin);
-    assert.strictEqual(currentStatus, false);
-  });
-
   it("should [transfer]", async function() {
     const trxAmt = 80000000000000000000000000;
     await makeTransfer(alekoin, trxAmt, contributor1, owner);
