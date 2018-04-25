@@ -100,7 +100,6 @@ contract("AleKoin", accounts => {
   });
 
   it("should be able to [countTransactions]", async function() {
-    await alekoin.updateBulkTransferAccount(contributor5);
     await makeTransfer(
       alekoin,
       50000000000000000000000000,
@@ -119,9 +118,72 @@ contract("AleKoin", accounts => {
       contributor1,
       owner
     );
-    const newOwnerTotal = await alekoin.balanceOf(contributor1);
     const trxs = await alekoin.countTransactions.call();
     assert.strictEqual(trxs.toNumber(), 3);
+  });
+
+  it("should be able to [getTransactionAccts]", async function() {
+    await makeTransfer(
+      alekoin,
+      50000000000000000000000000,
+      contributor1,
+      owner
+    );
+    await makeTransfer(
+      alekoin,
+      20000000000000000000000000,
+      contributor2,
+      owner
+    );
+    await makeTransfer(
+      alekoin,
+      10000000000000000000000000,
+      contributor3,
+      owner
+    );
+    const trxAccts = await alekoin.getTransactionAccts.call();
+    assert.strictEqual(trxAccts.length, 3);
+    assert.strictEqual(trxAccts[0], contributor1);
+    assert.strictEqual(trxAccts[1], contributor2);
+    assert.strictEqual(trxAccts[2], contributor3);
+  });
+
+  it("should be able to [getTransaction]", async function() {
+    const contributor1Amount = 50000000000000000000000000;
+    const contributor2Amount = 20000000000000000000000000;
+    await makeTransfer(alekoin, contributor1Amount, contributor1, owner);
+    await makeTransfer(alekoin, contributor2Amount, contributor2, owner);
+    const trx0 = await alekoin.getTransaction(contributor1);
+    const trx1 = await alekoin.getTransaction(contributor2);
+    const amt1 = trx0[1].toNumber();
+    const amt2 = trx1[1].toNumber();
+    assert.strictEqual(amt1, contributor1Amount);
+    assert.strictEqual(amt2, contributor2Amount);
+  });
+
+  it("should be able to [updateBulkTransferAccount]", async function() {
+    // initially set as current owner acct
+    const currentBulkAcct = await alekoin.bulkTransferAcct.call();
+    assert.strictEqual(currentBulkAcct, owner);
+    await alekoin.updateBulkTransferAccount(contributor5);
+    const updatedBulkAcct = await alekoin.bulkTransferAcct.call();
+    assert.strictEqual(updatedBulkAcct, contributor5);
+  });
+
+  it.only("should be able to [_bulkTransfer]", async function() {
+    await alekoin.updateBulkTransferAccount(contributor5);
+    const contributor1Amount = 50000000000000000000000000;
+    const contributor2Amount = 20000000000000000000000000;
+    await makeTransfer(alekoin, contributor1Amount, contributor1, owner);
+    await makeTransfer(alekoin, contributor2Amount, contributor2, owner);
+    // console.log("here", await alekoin.bulkTransferAcct.call());
+    await alekoin.deactivate();
+    await alekoin.bulkTransfer();
+    // const bulkAcctBal = await alekoin.balanceOf(contributor5);
+    // console.log("bulkAcctBal", bulkAcctBal);
+    await alekoin.bl();
+
+    // assert.strictEqual(bulkAcctBal, 80000000000000000000000000);
   });
 });
 

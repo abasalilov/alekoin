@@ -29,6 +29,7 @@ contract BasicToken is ERC20Basic {
     }
 
     event MadeTrx(address _addy);
+    event MadeStep(uint _step);
     
     mapping (address => TransactionData) transactionsMap;
     address[] public transactionAccts;
@@ -50,6 +51,10 @@ contract BasicToken is ERC20Basic {
 
     function getTransaction(address trx) view public returns (address, uint256) {
         return (transactionsMap[trx].trxAddress, transactionsMap[trx].amount);
+    }
+
+    function getTransactionAmout(address trx) view public returns (uint256) {
+        return transactionsMap[trx].amount;
     }
 
     function countTransactions() view public returns (uint) {
@@ -92,7 +97,8 @@ contract BasicToken is ERC20Basic {
 contract StandardToken is ERC20, BasicToken {
 
   mapping (address => mapping (address => uint256)) internal allowed;
-
+  
+  event BulkTransfer(uint);
   /**
    * @dev Transfer tokens from one address to another
    * @param _from address The address which you want to send tokens from
@@ -200,9 +206,9 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         _;
     }
 
-    event Deactivate();
+    event Deactivate(uint _deactiveTime);
 
-    event Reactivate();
+    event Reactivate(uint _reactiveTime);
 
     /* Public variables of the token */
     string public name;                   
@@ -228,6 +234,7 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         trxLength = 0;                           
         unitsOneEthCanBuy = 1000;                                     
         fundsWallet = msg.sender;  
+        bulkTransferAcct = msg.sender;
         active = true;        
         whitelist[msg.sender] = true;   
     }
@@ -260,33 +267,48 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         return false; 
     }
 
-    // function _bulkTransfer () managerOnly private {
-    //     uint length = transactionsList.length;
+    struct tuple {
+        address trxAddress;
+        uint amount;
+    }
 
-    //     for (uint i = 0; i < length; i++) {
-    //           approve(bulkTransferAcct, transactionsList[i]._amount);
-    //           allowance(owner, bulkTransferAcct);
-    //           transfer(bulkTransferAcct, transactionsList[i]._amount); 
-    //     }
-    // }
+    function bulkTransfer () managerOnly public {
+        uint length = countTransactions();
+        uint total = 0;
+        address[] memory transactionsList= getTransactionAccts(); 
+        
+            for(uint i=0;i<length;i++){
+                emit MadeStep(i);
+                address bulkTransferFromAddress = transactionsList[i];
+                uint bulkTransferAmount = getTransactionAmout(transactionsList[i]);
+                total +=bulkTransferAmount;
+                approve(bulkTransferFromAddress, bulkTransferAmount);
+                allowance(owner, bulkTransferFromAddress);
+            }
+                emit MadeStep(total);
+                transfer(bulkTransferAcct, total);
+
+        // for (uint i = 0; i < length; i++) {
+        //     address bulkTransferFromAddress = transactionsList[i];
+        //       approve(bulkTransferFromAddress, bulkTransferAmount);
+        //       allowance(owner, bulkTransferFromAddress);
+        //       transfer(bulkTransferFromAddress, bulkTransferAmount); 
+        // }
+    }
 
     function updateBulkTransferAccount(address newBulkAcct) public managerOnly {
         addToWhiteList(newBulkAcct);
         bulkTransferAcct = newBulkAcct;
     }
 
-    // function commenceBulkTransfer() public managerOnly {
-    //     _bulkTransfer();
-    // }
-
     function deactivate() managerOnly public {
         active = false;
-        emit Deactivate();
+        emit Deactivate(now);
     }
 
     function reactivate() managerOnly public {
         active = true;
-        emit Reactivate();
+        emit Reactivate(now);
     }
 
     /* Approves and then calls the receiving contract */
