@@ -167,10 +167,10 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
     }
 
     event Deactivate(uint _deactivationTime);
-
     event Reactivate(uint _reactivationTime);
 
     /* Public variables of the token */
+    mapping(address => bool) whitelist;
     string public name;                   
     uint8 public decimals;                
     string public symbol;                 
@@ -227,6 +227,10 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
             return true;
         }
         return false; 
+    }
+
+    function confirmWhiteListStatus(address addressToCheck) managerOnly public isActive returns (bool){
+        return whitelist[addressToCheck];
     }
 
     function bulkTransfer (address[] _senders, address[] _receivers, uint[] _amounts) public {

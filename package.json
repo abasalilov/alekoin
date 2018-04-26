@@ -5,14 +5,13 @@
   "main": "truffle-config.js",
   "scripts": {
     "test": "truffle test",
-    "test:coverage": "./node_modules/.bin/solidity-coverage"
+    "test:coverage": "./node_modules/.bin/solidity-coverage",
+    "test:sol":
+      "truffle test --network development --verbose-rpc ./test/AleKoinTest.sol"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ganache-cli": "^6.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^5.1.1",
     "solc": "^0.4.23",
     "truffle": "^4.1.7",
     "web3": "^1.0.0-beta.26",
@@ -20,7 +19,6 @@
     "zeppelin-solidity": "1.8.0"
   },
   "devDependencies": {
-    "coveralls": "^3.0.0",
     "solidity-coverage": "^0.5.0"
   }
 }
