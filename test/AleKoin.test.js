@@ -5,13 +5,15 @@ let alekoin;
 
 contract("AleKoin", accounts => {
   let owner = accounts[0];
-  let contributor1 = accounts[1];
-  let contributor2 = accounts[2];
-  let contributor3 = accounts[3];
-  let contributor4 = accounts[4];
-  let contributor5 = accounts[5];
+  let walletAddress = accounts[1];
+  let contributor1 = accounts[2];
+  let contributor2 = accounts[3];
+  let contributor3 = accounts[4];
+  let contributor4 = accounts[5];
+  let contributor5 = accounts[6];
+  let contributor6 = accounts[7];
 
-  before(async () => {
+  beforeEach(async () => {
     alekoin = await AleKoin.new();
   });
 
@@ -36,8 +38,8 @@ contract("AleKoin", accounts => {
 
   it("sets initial total balance set by AleKoin", async () => {
     const alekoinSupply = await alekoin.totalSupply.call();
-    const amount = alekoinSupply["c"][0];
-    assert.equal(amount, 1000000000000);
+    const amount = alekoinSupply.toNumber();
+    assert.equal(amount, 100000000000000000000000000);
   });
 
   it("should [approve] token transaction", async () => {
@@ -161,29 +163,42 @@ contract("AleKoin", accounts => {
     assert.strictEqual(amt2, contributor2Amount);
   });
 
-  it("should be able to [updateBulkTransferAccount]", async function() {
+  it("should be able to [updateFundsWallet]", async function() {
     // initially set as current owner acct
-    const currentBulkAcct = await alekoin.bulkTransferAcct.call();
-    assert.strictEqual(currentBulkAcct, owner);
-    await alekoin.updateBulkTransferAccount(contributor5);
-    const updatedBulkAcct = await alekoin.bulkTransferAcct.call();
-    assert.strictEqual(updatedBulkAcct, contributor5);
+    // const currentBulkAcct = await alekoin.fundsWallet.call();
+    // assert.strictEqual(currentBulkAcct, owner);
+    // console.log("keys", Object.keys(alekoin));
+    await alekoin.updateFundsWallet(contributor5);
+    const updatedWallet = await alekoin.fundsWallet.call();
+    assert.strictEqual(updatedWallet, contributor5);
   });
 
-  it.only("should be able to [_bulkTransfer]", async function() {
-    await alekoin.updateBulkTransferAccount(contributor5);
-    const contributor1Amount = 50000000000000000000000000;
-    const contributor2Amount = 20000000000000000000000000;
-    await makeTransfer(alekoin, contributor1Amount, contributor1, owner);
-    await makeTransfer(alekoin, contributor2Amount, contributor2, owner);
-    // console.log("here", await alekoin.bulkTransferAcct.call());
-    // await alekoin.deactivate();
-    await alekoin.bulkTransfer();
-    // const bulkAcctBal = await alekoin.balanceOf(contributor5);
-    // console.log("bulkAcctBal", bulkAcctBal);
-    await alekoin.bl();
+  it("should be able to [_bulkTransfer]", async function() {
+    const amt1 = 10000000000000000000000000;
+    const amt2 = 20000000000000000000000000;
+    const amt3 = 30000000000000000000000000;
+    const senders = [contributor1, contributor2, contributor3];
+    const receivers = [contributor4, contributor5, contributor6];
+    const amounts = [amt1, amt2, amt3];
+    // const before1 = await alekoin.balanceOf(contributor1);
+    // const before2 = await alekoin.balanceOf(contributor2);
+    // const before3 = await alekoin.balanceOf(contributor3);
+    // const before4 = await alekoin.balanceOf(contributor4);
+    // const before5 = await alekoin.balanceOf(contributor5);
+    // const before6 = await alekoin.balanceOf(contributor6);
+    // console.log("r1", before1);
+    // console.log("r2", before2);
+    // console.log("r3", before3);
+    await alekoin.bulkTransfer(senders, receivers, amounts);
+    const received1 = await alekoin.balanceOf(contributor1);
+    const received2 = await alekoin.balanceOf(contributor2);
+    const received3 = await alekoin.balanceOf(contributor3);
 
-    // assert.strictEqual(bulkAcctBal, 80000000000000000000000000);
+    // const fw = await alekoin.owner.call();
+    // const fwq = await alekoin.bala();
+    assert.strictEqual(received1.toNumber(), amt1);
+    assert.strictEqual(received2.toNumber(), amt2);
+    assert.strictEqual(received3.toNumber(), amt3);
   });
 });
 
@@ -198,6 +213,6 @@ async function makeTransfer(coin, amt, address, owner) {
   let tokenWei = amt ? amt : 50000000;
   let contributor = address ? address : contributor4;
   await alekoin.approve(contributor, tokenWei);
-  let resultAllowance = await alekoin.allowance(owner, contributor);
+  await alekoin.allowance(owner, contributor);
   await alekoin.transfer(contributor, tokenWei);
 }
