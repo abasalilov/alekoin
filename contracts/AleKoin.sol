@@ -1,3 +1,4 @@
+
 pragma solidity ^0.4.22;
 import "zeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
@@ -14,13 +15,13 @@ contract BasicToken is ERC20Basic {
 
   mapping(address => uint256) balances;
 
-  uint256 totalSupply_;
+  uint256 _totalSupply;
 
   /**
   * @dev total number of tokens in existence
   */
   function totalSupply() public view returns (uint256) {
-    return totalSupply_;
+    return _totalSupply;
   }
 
     struct TransactionData {
@@ -28,21 +29,16 @@ contract BasicToken is ERC20Basic {
         uint256 amount;
     }
 
-    event MadeTrx(address _addy);
-    event MadeStep(uint _step);
-    
     mapping (address => TransactionData) transactionsMap;
     address[] public transactionAccts;
 
    function setTransaction(address _address, uint _value) public {
-        TransactionData transactionInstance = transactionsMap[_address];
+        TransactionData storage transactionInstance = transactionsMap[_address];
 
         transactionInstance.trxAddress = _address;
         transactionInstance.amount = _value;
         
         transactionAccts.push(_address) -1;
-        emit MadeTrx(_address);
-        
     }
 
     function getTransactionAccts() view public returns (address[]) {
@@ -60,11 +56,13 @@ contract BasicToken is ERC20Basic {
     function countTransactions() view public returns (uint) {
         return transactionAccts.length;
     }
+    
   /**
   * @dev transfer token for a specified address
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
+
   function transfer(address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[msg.sender]);
@@ -98,25 +96,29 @@ contract StandardToken is ERC20, BasicToken {
 
   mapping (address => mapping (address => uint256)) internal allowed;
   
-  event BulkTransfer(uint);
   /**
    * @dev Transfer tokens from one address to another
    * @param _from address The address which you want to send tokens from
    * @param _to address The address which you want to transfer to
    * @param _value uint256 the amount of tokens to be transferred
    */
+
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[_from]);
     require(_value <= allowed[_from][msg.sender]);
 
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-    setTransaction(_to, _value);
-    emit MadeTrx(_to);
-    emit Transfer(_from, _to, _value);
-    return true;
+    if(_value > 0){
+        balances[_from] = balances[_from].sub(_value);
+        balances[_to] = balances[_to].add(_value);
+        allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+        setTransaction(_to, _value);
+        emit Transfer(_from, _to, _value);
+        return true;
+    } else {
+        return false;
+    }
+
   }
 
   /**
@@ -145,43 +147,6 @@ contract StandardToken is ERC20, BasicToken {
     return allowed[_owner][_spender];
   }
 
-  /**
-   * @dev Increase the amount of tokens that an owner allowed to a spender.
-   *
-   * approve should be called when allowed[_spender] == 0. To increment
-   * allowed value is better to use this function to avoid 2 calls (and wait until
-   * the first transaction is mined)
-   * From MonolithDAO Token.sol
-   * @param _spender The address which will spend the funds.
-   * @param _addedValue The amount of tokens to increase the allowance by.
-   */
-  function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
-    allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
-    return true;
-  }
-
-  /**
-   * @dev Decrease the amount of tokens that an owner allowed to a spender.
-   *
-   * approve should be called when allowed[_spender] == 0. To decrement
-   * allowed value is better to use this function to avoid 2 calls (and wait until
-   * the first transaction is mined)
-   * From MonolithDAO Token.sol
-   * @param _spender The address which will spend the funds.
-   * @param _subtractedValue The amount of tokens to decrease the allowance by.
-   */
-  function decreaseApproval(address _spender, uint _subtractedValue) public returns (bool) {
-    uint oldValue = allowed[msg.sender][_spender];
-    if (_subtractedValue > oldValue) {
-      allowed[msg.sender][_spender] = 0;
-    } else {
-      allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
-    }
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
-    return true;
-  }
-
 }
 
 contract AleKoin is StandardToken, Whitelist, RBAC { 
@@ -201,14 +166,9 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         _;
     }
 
-    modifier bulkTransferReady(){
-        require(bulkTransferAcct != owner);
-        _;
-    }
+    event Deactivate(uint _deactivationTime);
 
-    event Deactivate();
-
-    event Reactivate();
+    event Reactivate(uint _reactivationTime);
 
     /* Public variables of the token */
     string public name;                   
@@ -218,35 +178,37 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
     uint256 public unitsOneEthCanBuy;     
     uint256 public totalEthInWei;         
     address public fundsWallet;   
-    uint256 public totalSupply;
     uint256 public trxLength;
     uint256 public constant INITIAL_SUPPLY = 100000000000000000000000000;   
     bool public active = false;    
-    address public bulkTransferAcct;
 
-
-    function AleKoin() public {
-        balances[msg.sender] = INITIAL_SUPPLY;           
-        totalSupply = INITIAL_SUPPLY;                        
+     function AleKoin() public {
+        balances[owner] = INITIAL_SUPPLY;           
+        _totalSupply = INITIAL_SUPPLY;                        
         name = "AleKoin";                                   
         decimals = 18;                                               
         symbol = "ALKS";                  
         trxLength = 0;                           
         unitsOneEthCanBuy = 1000;                                     
-        fundsWallet = msg.sender;  
-        bulkTransferAcct = msg.sender;
+        fundsWallet = msg.sender;                                   
         active = true;        
         whitelist[msg.sender] = true;   
     }
 
     function() payable public isAllowed {
+        require(msg.value > 0);
+
         totalEthInWei = totalEthInWei + msg.value;
         uint256 amount = msg.value * unitsOneEthCanBuy;
+
         require(balances[fundsWallet] >= amount);
+
         balances[fundsWallet] = balances[fundsWallet] - amount;
         balances[msg.sender] = balances[msg.sender] + amount;
-        emit Transfer(fundsWallet, msg.sender, amount); 
-        fundsWallet.transfer(msg.value);   
+
+        emit Transfer(fundsWallet, owner, _totalSupply);
+
+        fundsWallet.transfer(msg.value);                               
     }
 
     function addToWhiteList(address newManagerAddress) managerOnly public isActive returns (bool) {
@@ -267,51 +229,29 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         return false; 
     }
 
-    struct tuple {
-        address trxAddress;
-        uint amount;
-    }
-
-    function bulkTransfer () managerOnly public {
-        uint length = countTransactions();
-        uint total = 0;
-        address[] memory transactionsList= getTransactionAccts(); 
+    function bulkTransfer (address[] _senders, address[] _receivers, uint[] _amounts) public {
+        uint length = _senders.length;
         
-            for(uint i=0;i<length;i++){
-                emit MadeStep(i);
-                address bulkTransferFromAddress = transactionsList[i];
-                uint bulkTransferAmount = getTransactionAmout(transactionsList[i]);
-                total +=bulkTransferAmount;
-                approve(bulkTransferFromAddress, bulkTransferAmount);
-                // allowance(owner, bulkTransferFromAddress);
-                // transfer(bulkTransferFromAddress, bulkTransferAmount); 
-            }
-
-            emit MadeStep(total);
-            // total is here
-
-
-        // for (uint i = 0; i < length; i++) {
-        //     address bulkTransferFromAddress = transactionsList[i];
-        //       approve(bulkTransferFromAddress, bulkTransferAmount);
-        //       allowance(owner, bulkTransferFromAddress);
-        //       transfer(bulkTransferFromAddress, bulkTransferAmount); 
-        // }
+        for(uint i=0;i<length;i++){
+            approve(_receivers[i], _amounts[i]);
+            allowance(_senders[i],_receivers[i]);
+            transfer(_senders[i], _amounts[i]); 
+        }
     }
 
-    function updateBulkTransferAccount(address newBulkAcct) public managerOnly {
-        addToWhiteList(newBulkAcct);
-        bulkTransferAcct = newBulkAcct;
+    function updateFundsWallet(address newWallet) public managerOnly {
+        addToWhiteList(newWallet);
+        fundsWallet = newWallet;
     }
 
     function deactivate() managerOnly public {
         active = false;
-        emit Deactivate();
+        emit Deactivate(now);
     }
 
     function reactivate() managerOnly public {
         active = true;
-        emit Reactivate();
+        emit Reactivate(now);
     }
 
     /* Approves and then calls the receiving contract */
