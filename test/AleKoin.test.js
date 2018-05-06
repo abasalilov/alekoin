@@ -164,10 +164,6 @@ contract("AleKoin", accounts => {
   });
 
   it("should be able to [updateFundsWallet]", async function() {
-    // initially set as current owner acct
-    // const currentBulkAcct = await alekoin.fundsWallet.call();
-    // assert.strictEqual(currentBulkAcct, owner);
-    // console.log("keys", Object.keys(alekoin));
     await alekoin.updateFundsWallet(contributor5);
     const updatedWallet = await alekoin.fundsWallet.call();
     assert.strictEqual(updatedWallet, contributor5);
@@ -180,22 +176,12 @@ contract("AleKoin", accounts => {
     const senders = [contributor1, contributor2, contributor3];
     const receivers = [contributor4, contributor5, contributor6];
     const amounts = [amt1, amt2, amt3];
-    // const before1 = await alekoin.balanceOf(contributor1);
-    // const before2 = await alekoin.balanceOf(contributor2);
-    // const before3 = await alekoin.balanceOf(contributor3);
-    // const before4 = await alekoin.balanceOf(contributor4);
-    // const before5 = await alekoin.balanceOf(contributor5);
-    // const before6 = await alekoin.balanceOf(contributor6);
-    // console.log("r1", before1);
-    // console.log("r2", before2);
-    // console.log("r3", before3);
+
     await alekoin.bulkTransfer(senders, receivers, amounts);
     const received1 = await alekoin.balanceOf(contributor1);
     const received2 = await alekoin.balanceOf(contributor2);
     const received3 = await alekoin.balanceOf(contributor3);
 
-    // const fw = await alekoin.owner.call();
-    // const fwq = await alekoin.bala();
     assert.strictEqual(received1.toNumber(), amt1);
     assert.strictEqual(received2.toNumber(), amt2);
     assert.strictEqual(received3.toNumber(), amt3);
