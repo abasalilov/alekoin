@@ -26,10 +26,9 @@ contract("AleKoin", accounts => {
     assert.strictEqual(isAdmin, true);
   });
 
-  it.only("adds original creator to whitelist", async function() {
-    const isInWhitelist = await alekoin.confirmWhiteListStatus();
-    console.log("isInWhitelist", typeof isInWhitelist);
-    assert.strictEqual(true, true);
+  it("adds original creator to whitelist", async function() {
+    const isInWhitelist = await alekoin.confirmWhiteListStatus.call(owner);
+    assert.strictEqual(isInWhitelist, true);
   });
 
   it("sets name to AleKoin", async () => {
@@ -80,16 +79,18 @@ contract("AleKoin", accounts => {
 
   it("should [addToWhitelist]", async function() {
     await alekoin.addToWhiteList(contributor1);
-    const isWhitelisted = await alekoin.whitelist(contributor1);
+    const isWhitelisted = await alekoin.confirmWhiteListStatus.call(
+      contributor1
+    );
     assert.strictEqual(isWhitelisted, true);
   });
 
   it("should [removeFromWhitelist]", async function() {
     await alekoin.addToWhiteList(contributor1);
-    let isWhitelisted = await alekoin.whitelist(contributor1);
+    let isWhitelisted = await alekoin.confirmWhiteListStatus.call(contributor1);
     assert.strictEqual(isWhitelisted, true);
     await alekoin.removeFromWhiteList(contributor1);
-    isWhitelisted = await alekoin.whitelist(contributor1);
+    isWhitelisted = await alekoin.confirmWhiteListStatus.call(contributor1);
     assert.strictEqual(isWhitelisted, false);
   });
 
