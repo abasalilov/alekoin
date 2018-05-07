@@ -6,9 +6,10 @@
   "scripts": {
     "test": "truffle test",
     "test:coverage": "./node_modules/.bin/solidity-coverage",
-    "test:sol": "truffle test --network development ./test/AleKoinTest.sol",
-    "test:js": "truffle test --network development ./test/AleKoin.test.js",
-    "test:free": "truffle test"
+    "test:sol_unit":
+      "truffle test --network development ./test/unit_tests/AleKoinTest.sol",
+    "test:js_integration":
+      "truffle test --network development ./test/integration_tests/AleKoin.test.js"
   },
   "author": "",
   "license": "ISC",

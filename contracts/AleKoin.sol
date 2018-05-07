@@ -192,7 +192,7 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         unitsOneEthCanBuy = 1000;                                     
         fundsWallet = msg.sender;                                   
         active = true;        
-        whitelist[msg.sender] = true;   
+        addToWhiteList(msg.sender);
     }
 
     function() payable public isAllowed {
@@ -212,12 +212,15 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
     }
 
     function addToWhiteList(address newManagerAddress) managerOnly public isActive returns (bool) {
+        bool wasAdded = false;
         if (!whitelist[newManagerAddress]) {
             whitelist[newManagerAddress] = true;
+            wasAdded = true;
             emit WhitelistedAddressAdded(newManagerAddress);
-            return true;
+            return wasAdded;
          }
-        return false;
+
+        return wasAdded;
     }
 
     function removeFromWhiteList(address managerAddress) managerOnly public isActive returns (bool) {
