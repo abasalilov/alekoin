@@ -1,9 +1,9 @@
 
 pragma solidity ^0.4.22;
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/ownership/Whitelist.sol";
-import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../node_modules/openzeppelin-solidity/contracts/ownership/Whitelist.sol";
+import "../node_modules/openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 
 /**
  * @title Basic token
