@@ -177,7 +177,7 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
     uint256 public constant INITIAL_SUPPLY = 100000000000000000000000000;   
     bool public active = false;    
 
-    constructor() {
+    constructor() public {
         balances[owner] = INITIAL_SUPPLY;           
         _totalSupply = INITIAL_SUPPLY;                        
         name = "AleKoin";                                   
@@ -227,7 +227,7 @@ contract AleKoin is StandardToken, Whitelist, RBAC {
         return false; 
     }
 
-    function confirmWhiteListStatus(address addressToCheck) public isActive returns (bool){
+    function confirmWhiteListStatus(address addressToCheck) public view isActive returns (bool){
         return whitelist[addressToCheck];
     }
 
