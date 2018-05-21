@@ -6,61 +6,62 @@ import "truffle/DeployedAddresses.sol";
 import "../../contracts/AleKoin.sol";
 
 contract AleKoinTest {
-  uint public initialBalance = 10 ether;
-  address public target;
+    uint public initialBalance = 10 ether;
+    address public target;
 
-  AleKoin alekoin;
-  function () public payable {}
+    AleKoin alekoin;
+    function () public payable {}
 
-  function beforeEach() public {
-    alekoin = new AleKoin();
-  }
+    function beforeEach() public {
+        alekoin = new AleKoin();
+    }
 
 
-  address testAddress = DeployedAddresses.AleKoin();
-  uint amt1 = 10000000000000000000000000;
-  uint256[] amounts = [amt1];
+    address testAddress = DeployedAddresses.AleKoin();
+    uint amt1 = 10000000000000000000000000;
+    uint256[] amounts = [amt1];
 
-  function testSettingAnOwnerOfDeployedContract() public {
-    alekoin = AleKoin(DeployedAddresses.AleKoin());
-    Assert.equal(alekoin.owner(), msg.sender, "An owner is different than a deployer");
-  }
+    function testSettingAnOwnerOfDeployedContract() public {
+        alekoin = AleKoin(DeployedAddresses.AleKoin());
+        Assert.equal(alekoin.owner(), msg.sender, "An owner is different than a deployer");
+    }
 
-  function testInitialBalance() public {
-    Assert.equal(alekoin.totalSupply(), 100000000000000000000000000, "Initial total supply amount is different than 1 billion to 18 decimal places");
-  }
+    function testInitialBalance() public {
+        Assert.equal(alekoin.totalSupply(), 100000000000000000000000000, 
+        "Initial total supply amount is different than 1 billion to 18 decimal places");
+    }
 
-  function testSettingAnOwnerDuringCreation() public {
-    Assert.equal(alekoin.owner(), this, "An owner is different than a deployer");
-  }
+    function testSettingAnOwnerDuringCreation() public {
+        Assert.equal(alekoin.owner(), this, "An owner is different than a deployer");
+    }
 
-  function testInitialStatusAndDeactivation() public {
-    Assert.equal(alekoin.active(), true, "Initial status of contract is active");
-    alekoin.deactivate();
-    Assert.equal(alekoin.active(), false, "Status after deactivation should be false");
-    alekoin.reactivate();
-    Assert.equal(alekoin.active(), true, "Status after reactivation of contract should be active");
-  }
+    function testInitialStatusAndDeactivation() public {
+        Assert.equal(alekoin.active(), true, "Initial status of contract is active");
+        alekoin.deactivate();
+        Assert.equal(alekoin.active(), false, "Status after deactivation should be false");
+        alekoin.reactivate();
+        Assert.equal(alekoin.active(), true, "Status after reactivation of contract should be active");
+    }
 
-  function testInitialNotWhiteListed() public {
-    Assert.equal(alekoin.whitelist(target), false, "Random address should not be on whitelist");
-  }
+    function testInitialNotWhiteListed() public {
+        Assert.equal(alekoin.whitelist(target), false, "Random address should not be on whitelist");
+    }
 
-  function testUpdatedWallet() public {
-    alekoin.updateFundsWallet(target);
-    Assert.equal(alekoin.fundsWallet(), target, "fundsWallet address should be updated");
-  }
+    function testUpdatedWallet() public {
+        alekoin.updateFundsWallet(target);
+        Assert.equal(alekoin.fundsWallet(), target, "fundsWallet address should be updated");
+    }
 
-  function testAddWhiteList() public {
-    alekoin.addToWhiteList(testAddress);
-    Assert.equal(alekoin.confirmWhiteListStatus(testAddress), true, "Should whitelist address");
-  }
+    function testAddWhiteList() public {
+        alekoin.addToWhiteList(testAddress);
+        Assert.equal(alekoin.confirmWhiteListStatus(testAddress), true, "Should whitelist address");
+    }
 
-  function testRemoveFromWhiteList() public {
-    alekoin.addToWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
-    alekoin.removeFromWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
-    Assert.equal(alekoin.confirmWhiteListStatus(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226), false, "Should remove address from whitelist");
-  }
+    function testRemoveFromWhiteList() public {
+        alekoin.addToWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
+        alekoin.removeFromWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
+        Assert.equal(alekoin.confirmWhiteListStatus(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226), false, "Should remove address from whitelist");
+    }
 
   // refactor test, too expensive 
   // function testBulkTranser() public {
