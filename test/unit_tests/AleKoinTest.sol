@@ -1,9 +1,9 @@
 // contracts/FundingTest.sol
 pragma solidity ^0.4.19;
 
-import "truffle/Assert.sol";
-import "truffle/DeployedAddresses.sol";
 import "../../contracts/AleKoin.sol";
+import "truffle/DeployedAddresses.sol";
+import "truffle/Assert.sol";
 
 contract AleKoinTest {
     uint public initialBalance = 10 ether;

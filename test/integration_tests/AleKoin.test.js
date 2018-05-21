@@ -94,7 +94,6 @@ contract("AleKoin", accounts => {
     assert.strictEqual(isWhitelisted, false);
   });
 
-  // is this a reasonable test?
   it("should be able to [approve] whitelisted user trx after [deactivate]", async function() {
     await alekoin.deactivate();
     let tokenWei = 50000000;
