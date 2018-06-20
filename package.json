@@ -1,5 +1,5 @@
 {
-  "name": "newalekoin",
+  "name": "shapecoin",
   "version": "1.0.0",
   "description": "",
   "main": "truffle-config.js",
@@ -15,7 +15,7 @@
     "openzeppelin-solidity": "^1.9.0",
     "solc": "^0.4.23",
     "truffle": "^4.1.8",
-    "web3": "^1.0.0-beta.26",
+    "web3": "^1.0.0-beta.34",
     "webpack": "^4.0.0"
   },
   "devDependencies": {
