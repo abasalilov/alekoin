@@ -1,12 +1,12 @@
 pragma solidity ^0.4.22;
 
-import "./Token.sol";
+import "./FoundationToken.sol";
 import "./ERC20.sol";
 import "./ERC223.sol";
 import "./ERC223ReceivingContract.sol";
-import "https://www.github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract ShapeCoin is Token("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 {
+contract ShapeCoin is FoundationToken("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 {
 
     using SafeMath for uint;
 
@@ -39,12 +39,11 @@ contract ShapeCoin is Token("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 
         if (_value > 0 && _value <= _balanceOf[msg.sender] && !isContract(_to)) {
             _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
             _balanceOf[_to] = _balanceOf[_to].add(_value);
-            Transfer(msg.sender, _to, _value);
+            emit Transfer(msg.sender, _to, _value);
             return true;
         }
         return false;
     }
-
 
     /**
      *  ** FOR CONTRACTS **
@@ -68,7 +67,7 @@ contract ShapeCoin is Token("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 
             _balanceOf[_to] = _balanceOf[_to].add(_value);
             ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
             _contract.tokenFallback(msg.sender, _value, _data);
-            Transfer(msg.sender, _to, _value, _data);
+            emit Transfer(msg.sender, _to, _value, _data);
             return true;
         }
         return false;
@@ -92,7 +91,7 @@ contract ShapeCoin is Token("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 
             _balanceOf[_from] = _balanceOf[_from].sub(_value);
             _balanceOf[_to] = _balanceOf[_to].add(_value);
             _allowances[_from][msg.sender] -= _value;
-            Transfer(_from, _to, _value);
+            emit Transfer(_from, _to, _value);
             return true;
         }
         return false;
@@ -100,7 +99,7 @@ contract ShapeCoin is Token("SHPC", "ShapeCoin", 18, 1000000000), ERC20, ERC223 
 
     function approve(address _spender, uint _value) public returns (bool) {
         _allowances[msg.sender][_spender] = _value;
-        Approval(msg.sender, _spender, _value);
+        emit Approval(msg.sender, _spender, _value);
         return true;
     }
 

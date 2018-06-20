@@ -1,6 +1,6 @@
 pragma solidity ^0.4.22;
 
-contract Token {
+contract FoundationToken {
     string internal _symbol;
     string internal _name;
     uint8 internal _decimals;

@@ -1,0 +1,6 @@
+{
+  "presets": ["es2015", "stage-2"],
+  "plugins": ["syntax-async-functions","transform-es2015-destructuring"],
+  "sourceMaps": true,
+  "ignore": ["node_modules"]
+}

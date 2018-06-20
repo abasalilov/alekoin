@@ -1,0 +1,126 @@
+  it("sets original creator set as admin", async function() {
+    const isAdmin = await alekoin.hasRole(owner, "admin");
+    assert.strictEqual(isAdmin, true);
+  });
+
+  it("adds original creator to whitelist", async function() {
+    const isInWhitelist = await alekoin.confirmWhiteListStatus.call(owner);
+    assert.strictEqual(isInWhitelist, true);
+  });
+
+
+  it("should be active initially", async function() {
+    assert.strictEqual(await getStatus(token), true);
+  });
+
+
+  it("should be able to [countTransactions]", async function() {
+    await makeTransfer(token, 500000000000, contributor1, owner);
+    await makeTransfer(token, 200000000000, contributor1, owner);
+    await makeTransfer(token, 100000000000, contributor1, owner);
+    const trxs = await token.countTransactions.call();
+    assert.strictEqual(trxs.toNumber(), 3);
+  });
+
+
+  it("should [deactivate]", async function() {
+    await alekoin.deactivate();
+    const currentStatus = await getStatus(alekoin);
+    assert.strictEqual(currentStatus, false);
+  });
+
+  it("should [reactivate]", async function() {
+    await alekoin.deactivate();
+    await alekoin.reactivate();
+    const currentStatus = await getStatus(alekoin);
+    assert.strictEqual(currentStatus, true);
+  });
+
+  it("should [addToWhitelist]", async function() {
+    await alekoin.addToWhiteList(contributor1);
+    const isWhitelisted = await alekoin.confirmWhiteListStatus.call(
+      contributor1
+    );
+    assert.strictEqual(isWhitelisted, true);
+  });
+
+    it("should be able to [getTransactionAccts]", async function() {
+    await makeTransfer(
+      alekoin,
+      50000000000000000000000000,
+      contributor1,
+      owner
+    );
+    await makeTransfer(
+      alekoin,
+      20000000000000000000000000,
+      contributor2,
+      owner
+    );
+    await makeTransfer(
+      alekoin,
+      10000000000000000000000000,
+      contributor3,
+      owner
+    );
+    const trxAccts = await alekoin.getTransactionAccts.call();
+    assert.strictEqual(trxAccts.length, 3);
+    assert.strictEqual(trxAccts[0], contributor1);
+    assert.strictEqual(trxAccts[1], contributor2);
+    assert.strictEqual(trxAccts[2], contributor3);
+  });
+
+    it("should be able to [updateFundsWallet]", async function() {
+    await alekoin.updateFundsWallet(contributor5);
+    const updatedWallet = await alekoin.fundsWallet.call();
+    assert.strictEqual(updatedWallet, contributor5);
+  });
+
+  // helpers
+
+async function getStatus(coin) {
+  const status = await coin.active.call();
+  return status;
+}
+
+async function makeTransfer(coin, amt, address, owner) {
+  let tokenWei = amt ? amt : 50000000;
+  let contributor = address ? address : contributor4;
+  await alekoin.approve(contributor, tokenWei);
+  await alekoin.allowance(owner, contributor);
+  await alekoin.transfer(contributor, tokenWei);
+}
+
+
+
+  it("should [removeFromWhitelist]", async function() {
+    await alekoin.addToWhiteList(contributor1);
+    let isWhitelisted = await alekoin.confirmWhiteListStatus.call(contributor1);
+    assert.strictEqual(isWhitelisted, true);
+    await alekoin.removeFromWhiteList(contributor1);
+    isWhitelisted = await alekoin.confirmWhiteListStatus.call(contributor1);
+    assert.strictEqual(isWhitelisted, false);
+  });
+
+  it("should be able to [approve] whitelisted user trx after [deactivate]", async function() {
+    await alekoin.deactivate();
+    let tokenWei = 50000000;
+    await alekoin.approve(contributor3, tokenWei);
+    let resultAllowance = await alekoin.allowance(owner, contributor3);
+    assert.strictEqual(resultAllowance.toNumber(), 50000000);
+  });
+
+  it("should be able to [getTransaction]", async function() {
+    const contributor1Amount = 50000000000000000000000000;
+    const contributor2Amount = 20000000000000000000000000;
+    await makeTransfer(alekoin, contributor1Amount, contributor1, owner);
+    await makeTransfer(alekoin, contributor2Amount, contributor2, owner);
+    const trx0 = await alekoin.getTransaction(contributor1);
+    const trx1 = await alekoin.getTransaction(contributor2);
+    const amt1 = trx0[1].toNumber();
+    const amt2 = trx1[1].toNumber();
+    assert.strictEqual(amt1, contributor1Amount);
+    assert.strictEqual(amt2, contributor2Amount);
+  });
+
+
