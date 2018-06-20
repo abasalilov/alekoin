@@ -1,3 +1,32 @@
+
+    function testInitialStatusAndDeactivation() public {
+        Assert.equal(alekoin.active(), true, "Initial status of contract is active");
+        alekoin.deactivate();
+        Assert.equal(alekoin.active(), false, "Status after deactivation should be false");
+        alekoin.reactivate();
+        Assert.equal(alekoin.active(), true, "Status after reactivation of contract should be active");
+    }
+
+    function testInitialNotWhiteListed() public {
+        Assert.equal(alekoin.whitelist(target), false, "Random address should not be on whitelist");
+    }
+
+    function testUpdatedWallet() public {
+        alekoin.updateFundsWallet(target);
+        Assert.equal(alekoin.fundsWallet(), target, "fundsWallet address should be updated");
+    }
+
+    function testAddWhiteList() public {
+        alekoin.addToWhiteList(testAddress);
+        Assert.equal(alekoin.confirmWhiteListStatus(testAddress), true, "Should whitelist address");
+    }
+
+    function testRemoveFromWhiteList() public {
+        alekoin.addToWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
+        alekoin.removeFromWhiteList(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226);
+        Assert.equal(alekoin.confirmWhiteListStatus(0x6C19dc8D03cB7a93d3451E40De418Be6B03e9226), false, "Should remove address from whitelist");
+    }  
+  
   it("sets original creator set as admin", async function() {
     const isAdmin = await alekoin.hasRole(owner, "admin");
     assert.strictEqual(isAdmin, true);

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "truffle test",
     "test:coverage": "./node_modules/.bin/solidity-coverage",
-    "build": "babel test -d lib --presets es2015,stage-2"
+    "build": "babel test -d lib --presets es2015,stage-2",
+    "test:sol_unit": "truffle test --network development ./test/unit_tests/TestCoin.sol",
+    "test:sol": "truffle test ./test/unit_tests/TestCoin.sol"
   },
   "author": "",
   "license": "ISC",

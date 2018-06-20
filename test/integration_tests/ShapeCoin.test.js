@@ -1,5 +1,4 @@
 const ShapeCoin = artifacts.require("ShapeCoin");
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 const assertRevert = async promise => {
   try {
