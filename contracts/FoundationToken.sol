@@ -8,11 +8,11 @@ contract FoundationToken {
     mapping (address => uint) internal _balanceOf;
     mapping (address => mapping (address => uint)) internal _allowances;
     
-    constructor(string symbol, string name, uint8 decimals, uint totalSupply) public {
+    constructor(string symbol, string name, uint8 decimals) public {
         _symbol = symbol;
         _name = name;
         _decimals = decimals;
-        _totalSupply = totalSupply;
+        _totalSupply = 1000*1000000 * (uint256(10) ** decimals);
     }
     
     function name() public view returns (string) {
