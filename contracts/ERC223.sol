@@ -1,5 +1,7 @@
 pragma solidity ^0.4.22;
 
+import "./ContractReceiver.sol";
+
 /* ERC20 contract interface */
 /* With ERC23/ERC223 Extensions */
 /* Fully backward compatible with ERC20 */
@@ -56,36 +58,6 @@ contract SafeMath {
             revert();
         }
         return x * y;
-    }
-}
-
-/*
- * Contract that is working with ERC223 tokens
- */
- contract ContractReceiver {
-
-    struct TKN {
-        address sender;
-        uint value;
-        bytes data;
-        bytes4 sig;
-    }
-
-    function tokenFallback(address _from, uint _value, bytes _data) public {
-      TKN memory tkn;
-      tkn.sender = _from;
-      tkn.value = _value;
-      tkn.data = _data;
-      uint32 u = uint32(_data[3]) + (uint32(_data[2]) << 8) + (uint32(_data[1]) << 16) + (uint32(_data[0]) << 24);
-      tkn.sig = bytes4(u);
-
-      /* tkn variable is analogue of msg variable of Ether transaction
-      *  tkn.sender is person who initiated this token transaction   (analogue of msg.sender)
-      *  tkn.value the number of tokens that were sent   (analogue of msg.value)
-      *  tkn.data is data of token transaction   (analogue of msg.data)
-      *  tkn.sig is 4 bytes signature of function
-      *  if data of token transaction is a function execution
-      */
     }
 }
 
@@ -176,6 +148,11 @@ contract ERC223 is ERC20, SafeMath {
         return totalSupply;
     }
 
+    // Function to access token unlocked status.
+    function isUnlocked() constant public returns (bool status) {
+        return unlocked;
+    }
+
     // Function that is called when a user or another contract wants to transfer funds .
     function transfer(address _to, uint _value, bytes _data, string _customFallback) public returns (bool success) {
 
@@ -200,7 +177,6 @@ contract ERC223 is ERC20, SafeMath {
 
     // Function that is called when a user or another contract wants to transfer funds .
     function transfer(address _to, uint _value, bytes _data) public  returns (bool success) {
-
         // Only allow transfer once unlocked
         // Once it is unlocked, it is unlocked forever and no one can lock again
         require(unlocked);
@@ -215,7 +191,6 @@ contract ERC223 is ERC20, SafeMath {
     // Standard function transfer similar to ERC20 transfer with no _data .
     // Added due to backwards compatibility reasons .
     function transfer(address _to, uint _value) public returns (bool success) {
-
         // Only allow transfer once unlocked
         // Once it is unlocked, it is unlocked forever and no one can lock again
         require(unlocked);
@@ -225,7 +200,8 @@ contract ERC223 is ERC20, SafeMath {
         bytes memory empty;
         if (isContract(_to)) {
             return transferToContract(_to, _value, empty);
-        } else {
+        } 
+        else {
             return transferToAddress(_to, _value, empty);
         }
     }

@@ -4,7 +4,6 @@ import "truffle/Assert.sol";
 import "../contracts/ERC223.sol";
 import "truffle/DeployedAddresses.sol";
 import "./helpers/ContractReceiverOverrider.sol";
-// import "./helpers/ContractReceiver.sol";
 
 // Contract that isn't working with ERC223 tokens
 contract ContractNonReceiver {}
@@ -74,35 +73,17 @@ contract ERC223Test {
       Assert.equal(erc223.balanceOf(msg.sender), expected, "Initial token amount transfer to owner is different than 0");
     }
 
-  // function testTraspasingWithDataToInvalidContract() {
-  //     ERC223 token = new ERC223();
-  //     ContractNonReceiver nonReceiver = new ContractNonReceiver();
+  function testUnlockToken() {
+    ERC223 token = new ERC223();
 
-  //     ThrowProxy throwProxy = new ThrowProxy(address(token));
+    ContractReceiver receiver = new ContractReceiver();
+    uint expected = 10000000000000000000;
+    bytes memory empty;
 
-  //     uint expected = 10000000000000000000;
-  //     bytes memory empty;
-
-      // Assert.equal(token.balanceOf(address(this)), expected, "Owner should have 1000 LED Coin initially");
-      /* Proxy Contract will execute and catch the throw so it needs the balance */
-      // Assert.isTrue(token.transfer(address(throwProxy), 1000), 'Transfer to Proxy success');
-      // ERC223(address(throwProxy)).transfer(address(nonReceiver), 50, empty);
-      // bool r = throwProxy.execute.gas(2000)();
-      // Assert.isFalse(r, "Should be false, as it should throw");
-      // Assert.equal(token.balanceOf(address(throwProxy)), 100, "Owner should have 50 LED Coin initially");
-      // Assert.equal(token.balanceOf(address(nonReceiver)), 0, "Owner should have 50 LED Coin initially");
-    // }
-
-  // function testTraspasingWithoutDataToValidContract() {
-  //   ERC223 token = new ERC223();
-
-  //   ContractReceiver receiver = new ContractReceiver();
-  //   uint expected = 10000000000000000;
-
-  //   Assert.equal(token.balanceOf(address(this)), expected, "Owner should have 10000000000000000 MetaCoin initially");
-  //   Assert.isTrue(token.transfer(address(receiver), 5000000000000000), 'Transfer success');
-  //   Assert.equal(token.balanceOf(address(this)), 5000000000000000, "Owner should have 5000000000000000 MetaCoin initially");
-  //   Assert.equal(token.balanceOf(address(receiver)), 5000000000000000, "Owner should have 5000000000000000 MetaCoin initially");
-  // }
+    Assert.equal(token.balanceOf(address(this)), expected, "Owner should have 10000000000000000000 Led Token before transfer");
+    Assert.isFalse(token.isUnlocked(), 'Token should be locked');
+    token.unlockForever();
+    Assert.isTrue(token.isUnlocked(), 'Token should not locked');
+  }
     
 }
