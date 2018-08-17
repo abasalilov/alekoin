@@ -13,9 +13,9 @@ contract ERC20 {
     function balanceOf(address who) public constant returns (uint);
     function totalSupply() constant public returns (uint256 _supply);
     function transfer(address to, uint value) public returns (bool ok);
-    function transfer(address to, uint value, bytes data) public returns (bool ok);
-    function transfer(address to, uint value, bytes data, string customFallback) public returns (bool ok);
-    event Transfer(address indexed from, address indexed to, uint value, bytes indexed data);
+    function transfer(address to, uint value, bytes data) internal returns (bool ok);
+    function transfer(address to, uint value, bytes data, string customFallback) internal returns (bool ok);
+    event Transfer(address indexed from, address indexed to, uint value, bytes data);
 
     // ERC223 functions
     function name() constant public returns (string _name);
@@ -153,8 +153,26 @@ contract ERC223 is ERC20, SafeMath {
         return unlocked;
     }
 
+    function isFrozen() constant public returns (bool status) {
+        return frozen;
+    }
+
+
     // Function that is called when a user or another contract wants to transfer funds .
-    function transfer(address _to, uint _value, bytes _data, string _customFallback) public returns (bool success) {
+    function transfer(address _to, uint _value, bytes _data) internal  returns (bool success) {
+        // Only allow transfer once unlocked
+        // Once it is unlocked, it is unlocked forever and no one can lock again
+        require(unlocked);
+
+        if (isContract(_to)) {
+            return transferToContract(_to, _value, _data);
+        } else {
+            return transferToAddress(_to, _value, _data);
+        }
+    }
+
+    // Function that is called when a user or another contract wants to transfer funds .
+    function transfer(address _to, uint _value, bytes _data, string _customFallback) internal returns (bool success) {
 
         // Only allow transfer once unlocked
         // Once it is unlocked, it is unlocked forever and no one can lock again
@@ -175,19 +193,6 @@ contract ERC223 is ERC20, SafeMath {
         }
     }
 
-    // Function that is called when a user or another contract wants to transfer funds .
-    function transfer(address _to, uint _value, bytes _data) public  returns (bool success) {
-        // Only allow transfer once unlocked
-        // Once it is unlocked, it is unlocked forever and no one can lock again
-        require(unlocked);
-
-        if (isContract(_to)) {
-            return transferToContract(_to, _value, _data);
-        } else {
-            return transferToAddress(_to, _value, _data);
-        }
-    }
-
     // Standard function transfer similar to ERC20 transfer with no _data .
     // Added due to backwards compatibility reasons .
     function transfer(address _to, uint _value) public returns (bool success) {
@@ -200,12 +205,11 @@ contract ERC223 is ERC20, SafeMath {
         bytes memory empty;
         if (isContract(_to)) {
             return transferToContract(_to, _value, empty);
-        } 
+        }
         else {
             return transferToAddress(_to, _value, empty);
         }
     }
-
     // assemble the given address bytecode. If bytecode exists then the _addr is a contract.
     function isContract(address _addr) private returns (bool _isContract) {
         uint length;
