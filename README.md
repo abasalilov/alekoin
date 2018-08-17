@@ -10,5 +10,4 @@ npm install
 3.) Rebuild & test
 truffle compile
 truffle test
-truffle migrate --network=kovan
-or truffle migrate --network=rinkeby
+truffle migrate --network=kovan or truffle migrate --network=rinkeby
