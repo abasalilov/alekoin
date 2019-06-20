@@ -1,6 +1,6 @@
 {
-  "name": "shapecoin",
-  "version": "1.0.0",
+  "name": "testcoin",
+  "version": "2.2.0",
   "description": "",
   "main": "truffle-config.js",
   "scripts": {

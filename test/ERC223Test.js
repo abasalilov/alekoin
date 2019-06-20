@@ -1,7 +1,7 @@
 const ERC223 = artifacts.require("ERC223");
 const assertJump = require("./helpers/assertJump");
 
-contract("ERC223", accounts => {
+contract("StableCoin", accounts => {
   const [firstAccount, purchaser1] = accounts;
 
   it("sets an owner", async () => {
@@ -48,8 +48,7 @@ contract("ERC223", accounts => {
     token.toggleFreeze({ from: firstAccount });
 
     let newStatus = await token.isFrozen();
-    console.log("newStatus", newStatus);
-    assert.equal(frozen, !newStatus, "");
+    assert.equal(frozen, false, "");
   });
 
   //In order to even transfer token it needs to be unlocked except it's airdrop distribution
